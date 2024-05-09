@@ -1,0 +1,40 @@
+name: automacao_efs
+run-name: EFS
+on:
+  push:
+    branches:
+      -"main"
+    paths:
+      - images/**
+      - .githib/worflows/main.yml
+jobs:
+  efs-senai:
+    runs-on: ubuntu-lateaste
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: instalação do SSH
+        run: sudo apt-get install -y openssh-client
+
+      - name: Verifica da chave pen
+        run: echo "SKEY_PATH"
+        env:
+          SKEY_PATH: ${{ secrets.CHAVE_PEM }}
+
+      - name: Adicionar host EC2 ao knom_hosts
+        run: | 
+          ssh-keygen -t -b 4096 -f ~/.ssh/id_rsa -N ``
+          ssh-keyscan -H 34.228.29.80 >> ~/.ssh/known_hosts 
+      - name: Evio das imagens SCP
+        if: always()
+
+      - name: Enviando imagens
+        run: |
+          echo "$KEY_PATH" > ./chave.pem
+          chmod 600 ./cahave.pem  
+          scp -i ./cahave.pem images/*.* ec2-user@34.228.29.80:/home/ec2-user/efs
+        env:
+          SKEY_PATH: ${{ secrets.CHAVE_PEM }}     
+        
+      
