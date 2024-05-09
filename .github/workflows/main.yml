@@ -1,40 +1,37 @@
-name: automacao_efs
-run-name: EFS
+name: senai_automacao_efs
+run-name: ${{ github.actor }} Pipeline deploy
 on:
   push:
     branches:
-      -"main"
+      - "main"
     paths:
       - images/**
-      - .githib/worflows/main.yml
+      - .github/workflows/main.yml
 jobs:
   efs-senai:
-    runs-on: ubuntu-lateaste
-    steps: 
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: instalação do SSH
+      - name: Instalação das dependências SSH
         run: sudo apt-get install -y openssh-client
 
-      - name: Verifica da chave pen
-        run: echo "SKEY_PATH"
+      - name: Verificar caminho da chave .pem
+        run: echo "$KEY_PATH"
         env:
-          SKEY_PATH: ${{ secrets.CHAVE_PEM }}
+          KEY_PATH: ${{ secrets.CHAVE_PEM }}
 
-      - name: Adicionar host EC2 ao knom_hosts
-        run: | 
-          ssh-keygen -t -b 4096 -f ~/.ssh/id_rsa -N ``
-          ssh-keyscan -H 34.228.29.80 >> ~/.ssh/known_hosts 
-      - name: Evio das imagens SCP
+      - name: Adicionar host EC2 ao known_hosts
+        run: |
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ''
+          ssh-keyscan -H <trocar_ip> >> ~/.ssh/known_hosts
+
+      - name: Envio do arquivo via SCP
         if: always()
-
-      - name: Enviando imagens
         run: |
           echo "$KEY_PATH" > ./chave.pem
-          chmod 600 ./cahave.pem  
+          chmod 600 ./chave.pem
           scp -i ./cahave.pem images/*.* ec2-user@34.228.29.80:/home/ec2-user/efs
         env:
-          SKEY_PATH: ${{ secrets.CHAVE_PEM }}     
-        
-      
+          KEY_PATH: ${{ secrets.CHAVE_PEM }}
